@@ -62,10 +62,6 @@ struct configuration{
 void motorControl(int rpos, int cpos, int Direction, int Delay);
 void homePanels(void);
 
-// app input for all motors
-int numRows; 
-int numColumns;
-
 // app input for individual motors
 int rpos; 
 int cpos;
@@ -82,20 +78,16 @@ void setup(){
 // wait until data is received
   while(!Serial1.available()){}
 
-// read configuration data
-  numRows = Serial1.parseInt();
-  numColumns = Serial1.parseInt();
-
 // allocate memory for rows
-  MotorArr = new configuration*[numRows];
+  MotorArr = new configuration*[3];
 // allocate memory for each column in each row
-  for(int i = 0; i < numRows; i++){
-    MotorArr[i] = new configuration[numColumns];
+  for(int i = 0; i < 3; i++){
+    MotorArr[i] = new configuration[3];
   }
 
   int idx = 0;
-  for(int i = 0; i < numRows; i++){
-    for(int j = 0; j < numColumns; j++){
+  for(int i = 0; i < 3; i++){
+    for(int j = 0; j < 3; j++){
       MotorArr[i][j].PulPin = PulPins[idx]; // asign pulse pin to matrix poition
       MotorArr[i][j].DirPin = DirPins[idx]; // asign direction pin to matrix position
       MotorArr[i][j].LimitPin = LimitPins[idx]; // assign switch pin to matrix position
@@ -112,13 +104,22 @@ void setup(){
 }
 
 void loop(){
+
+ int brightness;
+ char color;
+
 // after homing
 // read data
-  if (Serial1.available() >= 8){
+  if (Serial1.available() >= 17){
     rpos = Serial1.parseInt();
     cpos = Serial1.parseInt();
     speed = Serial1.parseInt();
     direction = Serial1.parseInt();
+    brightness = Serial1.parseInt();
+
+    for(int i = 0; i < 7 ; i++){
+      color = Serial1.read();
+    }
 
 // execute motor instructions (5 pulses per configuration)
     for(int i = 0; i < 5; i++){
@@ -129,7 +130,6 @@ void loop(){
     }
   }
 } 
-
 
 void motorControl(int rpos, int cpos, int Direction, int Delay){
 // for direction: 0 -> clockwise, 1-> counterclockwise 
